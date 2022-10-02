@@ -1,0 +1,114 @@
+﻿<h2>Data Kendaraan Perusahaan</h2>
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <table class="table table-bordered table-striped" id="tblKendaraan">
+            <thead>
+                <tr>
+                    <th scope="col">No</th>
+                    <th scope="col">Tipe</th>
+                    <th scope="col">Warna</th>
+                    <th scope="col">Tanggal Beli</th>
+                    <th scope="col">Jumlah Roda</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@section scripts{
+
+    <script>
+        $(document).ready(function () {
+            bindDatatable();
+            addDisplayLength();
+            loadtipe();
+            
+            $("#iDisplayButton").click(function () {
+                var displayLen = $('#iDisplayLength').val();
+                $('#tblKendaraan').DataTable().page.len(displayLen).draw();
+            });
+
+            $("#ddlTipe").change(function () {                
+                table.search(this.value).draw();
+                //table.column(1).search(this.value).draw();
+           
+            });
+        });
+
+        function bindDatatable() {
+
+            table = $('#tblKendaraan')
+                .DataTable({
+                    "sAjaxSource": "/KendaraanPerusahaan/LoadData",
+                    "serverSide": true,
+                    "processing": true,
+                    "bSearchable": true,
+                    "iDisplayLength": 5,
+                    "language": {
+                        "emptyTable": "No record found.",
+                    },
+                    "dom": 'lfrtp',
+                    "sPaginationType": "numbers",
+                    "columns": [
+                        {
+                            "data": null,
+                            "sortable": false,
+                            render: function (data, type, row, meta) {
+                                return meta.row + meta.settings._iDisplayStart + 1;
+                            }
+                        },
+                        {
+                            "data": "Tipe",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "Warna",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "TanggalBeliString",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                        {
+                            "data": "JumlahRoda",
+                            "autoWidth": true,
+                            "searchable": true
+                        },
+                    ]
+                });
+        }
+
+        function addDisplayLength() {
+            var input = '<input type="text" id="iDisplayLength" value="5" size="2" />' +
+                '<input type="button" id="iDisplayButton" value="Show" />';
+
+            $("#tblKendaraan_length").html(input);                        
+        }
+
+        function loadtipe() {
+
+            var ddl =                
+                '<div class="dataTables_info"><select class="form-control" id="ddlTipe"></select></div>';
+            $('.dataTables_wrapper').append(ddl);
+
+
+             $.ajax({
+                url: "/KendaraanPerusahaan/GetDataTipe",
+                type: "POST",
+                success: function (data) {
+                    $("#ddlTipe").append(new Option("--Pilih Tipe --", "", true, true));
+                    $.each(data, function (index, value) {
+                        
+                        $("#ddlTipe").append('<option value="' + value.Tipe + '">' + value.Tipe + "</option>");                       
+                    });
+                },
+            });
+        }
+
+    </script>
+}
